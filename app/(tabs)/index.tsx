@@ -148,7 +148,7 @@ export default function HomeScreen() {
     });
   };
 
-  const username = user?.displayName || user?.email?.split('@')[0] || 'User';
+  const username = user?.displayName || user?.email?.split('@')[0];
 
   // Auto-scroll carousel
   useEffect(() => {
@@ -185,8 +185,8 @@ export default function HomeScreen() {
       <HomeHeader />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          <Text style={styles.greeting}>Hi, {username}</Text>
-          <Text style={styles.tagline}>Time for your next transformation?</Text>
+          <Text style={styles.greeting}>{username? `Hi, ${username}`: 'Hello!'}</Text>
+          <Text style={styles.tagline}>Ready for your next transformation?</Text>
           <View style={styles.searchRow}>
             <View style={styles.searchContainer}>
               <Search size={20} color={palette.mutedForeground} />

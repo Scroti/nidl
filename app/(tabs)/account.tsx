@@ -42,7 +42,8 @@ export default function AccountScreen() {
   const handleLogout = async () => {
     try {
       await signOutUser();
-      router.replace('/(auth)/login');
+      // After logout, send the user to the main home/tabs screen
+      router.replace('/(tabs)');
     } catch (error) {
       console.error('Failed to logout:', error);
     }
