@@ -125,7 +125,7 @@ const allItems = [
 
 export default function HomeScreen() {
   const { colorScheme } = useTheme();
-  const { user } = useAppState();
+  const { user, userProfile } = useAppState();
   const router = useRouter();
   const palette = Colors[colorScheme ?? 'light'];
   const styles = createStyles(palette, colorScheme);

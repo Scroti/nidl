@@ -1,82 +1,66 @@
 # Firebase Setup Guide
 
-## Step 1: Create a Firebase Project
+## Step 1: Create Firebase Project
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Click "Add project" or select an existing project
-3. Follow the setup wizard
+3. Follow the setup wizard:
+   - Enter project name: `nidl`
+   - Enable Google Analytics (optional)
+   - Choose or create Analytics account
 
-## Step 2: Register Your App
+## Step 2: Add Your App
 
-### For Web App (Expo managed workflow)
+1. In Firebase Console, click the **Web** icon (`</>`) or **Add app**
+2. Register your app:
+   - App nickname: `nidl`
+   - Firebase Hosting: Not needed for React Native
+3. Copy your Firebase configuration
 
-1. In Firebase Console, go to **Project Settings** > **General** tab
-2. Scroll down to **Your apps** section
-3. Click the **Web** icon (`</>`) to add a web app
-4. Register your app with a nickname (e.g., "Nidl Web")
-5. Copy the Firebase configuration object
+## Step 3: Get Firebase Config
 
-## Step 3: Configure Environment Variables
+1. In Firebase Console, go to **Project Settings** (gear icon)
+2. Scroll down to "Your apps" section
+3. Click on your web app
+4. Copy the config values:
+   - `apiKey`
+   - `authDomain`
+   - `projectId`
+   - `storageBucket`
+   - `messagingSenderId`
+   - `appId`
 
-1. Create a `.env` file in the root of your project (copy from `.env.example` if it exists)
-2. Add your Firebase configuration values:
+## Step 4: Add Environment Variables
+
+Create or update your `.env` file in the project root:
 
 ```env
-EXPO_PUBLIC_FIREBASE_API_KEY=your-api-key-here
-EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
+EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
-3. Replace the placeholder values with your actual Firebase config values
+**Important**: Restart your Expo dev server after adding these!
 
-## Step 4: Enable Firebase Services
+## Step 5: Enable Authentication Methods
 
-### Enable Authentication
+1. In Firebase Console, go to **Authentication** → **Sign-in method**
+2. Enable the following providers:
+   - **Email/Password**: Click, toggle "Enable", Save
+   - **Phone**: Click, toggle "Enable", configure (requires setup)
+   - **Google**: Click, toggle "Enable", add OAuth credentials
 
-1. Go to **Authentication** > **Get started**
-2. Enable **Email/Password** sign-in method (or other methods you need)
-3. Configure any additional settings
+## Step 6: Test Connection
 
-### Enable Firestore (if needed)
+After setting up, restart your Expo dev server and the app should connect to Firebase!
 
-1. Go to **Firestore Database** > **Create database**
-2. Start in **test mode** (or production mode with rules)
-3. Choose a location for your database
+## Next Steps
 
-## Step 5: Usage in Your App
-
-Import Firebase services in your components:
-
-```typescript
-import { auth, db } from '@/config/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore';
-```
-
-## Alternative: Using React Native Firebase
-
-If you need native Firebase features (like push notifications, analytics, etc.), you'll need to:
-
-1. Install development build dependencies:
-   ```bash
-   npx expo install expo-dev-client
-   ```
-
-2. Install React Native Firebase:
-   ```bash
-   npm install @react-native-firebase/app @react-native-firebase/auth
-   ```
-
-3. Create a development build:
-   ```bash
-   npx expo prebuild
-   npx expo run:ios  # or npx expo run:android
-   ```
-
-4. Add `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) to your native folders
-
-**Note:** React Native Firebase requires a development build and cannot be used in Expo Go.
+- Test email/password authentication
+- Set up phone authentication (if needed)
+- Set up Google OAuth (if needed)
+- Configure Firestore for data storage (if needed)
 

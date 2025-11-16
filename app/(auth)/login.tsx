@@ -51,7 +51,6 @@ export default function LoginScreen() {
   };
 
   const handleForgotPassword = () => {
-    // TODO: Implement forgot password flow
     router.push('/(auth)/forgot-password');
   };
 
@@ -206,4 +205,3 @@ function createStyles(palette: typeof Colors.light) {
     },
   });
 }
-

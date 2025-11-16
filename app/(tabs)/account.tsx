@@ -16,8 +16,7 @@ import {
 } from 'lucide-react-native';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { auth } from '@/config/firebase';
-import { signOut } from 'firebase/auth';
+import { signOutUser } from '@/lib/firebase-auth';
 import { useRouter } from 'expo-router';
 
 type MenuItem = {
@@ -36,13 +35,13 @@ export default function AccountScreen() {
   const palette = Colors[colorScheme ?? 'light'];
   const styles = createStyles(palette, insets, colorScheme);
 
-  const displayName = user?.displayName || 'User';
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
   const email = user?.email || 'user@example.com';
   const profileImageUrl = user?.photoURL;
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await signOutUser();
       router.replace('/(auth)/login');
     } catch (error) {
       console.error('Failed to logout:', error);

@@ -1,22 +1,22 @@
 import { Colors } from '@/constants/theme';
+import { updateUserEmail, updateUserProfile } from '@/lib/firebase-auth';
 import { useAppState } from '@/providers/app-state-provider';
 import { useTheme } from '@/providers/theme-provider';
 import { useRouter } from 'expo-router';
-import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from 'firebase/auth';
 import { ArrowLeft, Camera, Link as LinkIcon, Mail, Phone, User } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -75,10 +75,10 @@ export default function EditProfileScreen() {
       
       // Update profile fields
       if (Object.keys(updates).length > 0) {
-        await updateProfile(user, updates);
+        await updateUserProfile(updates);
       }
       
-      // Update email if changed (requires re-authentication)
+      // Update email if changed (requires password)
       if (email.trim() !== user.email && email.trim()) {
         if (!currentPassword) {
           setError('Current password is required to change email');
@@ -87,12 +87,7 @@ export default function EditProfileScreen() {
           return;
         }
         
-        // Re-authenticate user
-        const credential = EmailAuthProvider.credential(user.email || '', currentPassword);
-        await reauthenticateWithCredential(user, credential);
-        
-        // Update email
-        await updateEmail(user, email.trim());
+        await updateUserEmail(email.trim(), currentPassword);
       }
       
       Alert.alert('Success', 'Profile updated successfully', [
@@ -100,14 +95,15 @@ export default function EditProfileScreen() {
       ]);
     } catch (err: any) {
       console.error('Update profile error:', err);
-      if (err.code === 'auth/wrong-password') {
+      const errorMessage = err.message || 'Failed to update profile. Please try again.';
+      if (errorMessage.includes('password') || errorMessage.includes('incorrect')) {
         setError('Incorrect password. Please try again.');
-      } else if (err.code === 'auth/email-already-in-use') {
+      } else if (errorMessage.includes('email already') || errorMessage.includes('already registered')) {
         setError('This email is already in use by another account.');
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (errorMessage.includes('invalid email')) {
         setError('Invalid email address.');
       } else {
-        setError(err.message || 'Failed to update profile. Please try again.');
+        setError(errorMessage);
       }
       setIsLoading(false);
     }
@@ -156,18 +152,18 @@ export default function EditProfileScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Profile Photo Section */}
         <View style={styles.photoSection}>
-          <View style={styles.profileImageContainer}>
-            {user?.photoURL ? (
-              <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
+          <Pressable style={styles.profileImageContainer} onPress={handleChangePhoto}>
+            {photoURL ? (
+              <Image source={{ uri: photoURL }} style={styles.profileImage} />
             ) : (
               <View style={styles.profilePlaceholder}>
                 <User size={60} color={palette.mutedForeground} />
               </View>
             )}
-            <Pressable style={styles.cameraButton} onPress={handleChangePhoto}>
+            <View style={styles.cameraButton}>
               <Camera size={20} color={palette.foreground} />
-            </Pressable>
-          </View>
+            </View>
+          </Pressable>
           <Text style={styles.photoHint}>Tap to change photo</Text>
         </View>
 
@@ -210,7 +206,7 @@ export default function EditProfileScreen() {
               autoCapitalize="none"
               autoComplete="email"
             />
-            {email !== user?.email && (
+            {email !== user?.email && email.trim() && (
               <Text style={styles.hint}>Password required to change email</Text>
             )}
           </View>
@@ -276,7 +272,6 @@ export default function EditProfileScreen() {
             </View>
           </View>
 
-
           {error ? (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>{error}</Text>
@@ -302,7 +297,7 @@ function createStyles(
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingTop: insets.top/1.3,
+      paddingTop: insets.top / 1.3,
       paddingBottom: 16,
       paddingHorizontal: 16,
       backgroundColor: palette.background,
@@ -373,8 +368,6 @@ function createStyles(
       backgroundColor: palette.primary,
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 3,
-      borderColor: palette.background,
     },
     photoHint: {
       fontSize: 14,
@@ -410,13 +403,6 @@ function createStyles(
         shadowRadius: 2,
         elevation: 1,
       }),
-    },
-    inputDisabled: {
-      opacity: 0.6,
-    },
-    inputDisabledText: {
-      color: palette.mutedForeground,
-      fontSize: 16,
     },
     hint: {
       fontSize: 12,
@@ -456,44 +442,5 @@ function createStyles(
       justifyContent: 'center',
       alignItems: 'center',
     },
-    photoPreview: {
-      marginTop: 12,
-      alignItems: 'center',
-    },
-    photoPreviewImage: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
-      marginBottom: 8,
-    },
-    readOnlySection: {
-      marginTop: 32,
-      paddingTop: 24,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontWeight: '700',
-      color: palette.foreground,
-      marginBottom: 16,
-    },
-    readOnlyItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: 12,
-    },
-    readOnlyLabel: {
-      fontSize: 14,
-      color: palette.mutedForeground,
-      fontWeight: '500',
-    },
-    readOnlyValue: {
-      fontSize: 14,
-      color: palette.foreground,
-      flex: 1,
-      textAlign: 'right',
-      marginLeft: 16,
-    },
   });
 }
-
